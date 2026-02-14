@@ -1,0 +1,10 @@
+fecha,hora,torre,departamento,tipo_accion
+2026-02-14,09:41:21,T1,103,Mensaje
+2026-02-14,09:47:42,T1,101,Mensaje
+2026-02-14,09:49:09,T1,101,Mensaje
+2026-02-14,09:57:05,T1,101,Llamada
+2026-02-14,09:58:43,T1,101,Mensaje: Pedido en portería
+2026-02-14,10:15:54,T1,101,Llamada
+2026-02-14,10:16:07,T1,101,Llamada
+2026-02-14,10:16:12,T1,101,Mensaje: Pedido en portería
+2026-02-14,10:28:03,T1,101,Llamada
