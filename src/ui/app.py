@@ -86,15 +86,17 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. FUNCIONES NATIVAS
+# 2. FUNCIONES DE LÓGICA (Definir antes de usar)
 # ==========================================
-def open_whatsapp_popup(url):
-    """Lógica de apertura popup sin recargar app."""
-    js = f"""<script>window.open("{url}", "_blank", "width=600,height=700");</script>"""
-    components.html(js, height=0, width=0)
+
+def open_whatsapp_and_mark_done(url):
+    """Inyecta JS para abrir WhatsApp y marca el estado como completado."""
+    js = f"""<script>window.open("{url}", "_blank");</script>"""
+    components.html(js, height=0)
+    st.session_state.completado = True
 
 def log_event(torre, depto, action):
-    """Auditoría de eventos en CSV."""
+    """Registra eventos en el archivo CSV de auditoría."""
     try:
         os.makedirs(os.path.dirname(EVENTS_CSV), exist_ok=True)
         file_exists = os.path.exists(EVENTS_CSV)
@@ -105,7 +107,7 @@ def log_event(torre, depto, action):
             now = datetime.now()
             writer.writerow([now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S"), torre, depto, action])
     except Exception as e:
-        st.error(f"Error de registro: {e}")
+        st.error(f"Error al registrar evento: {e}")
 
 @st.cache_data
 def load_data():
@@ -165,35 +167,40 @@ elif st.session_state.step == 3:
 
 # --- PANTALLA 4: FICHA DE ACCIÓN ---
 elif st.session_state.step == 4:
-    st.markdown(f"""
-        <div style="background-color: white; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 0;">DEPARTAMENTO</p>
-            <h1 style="color: #1e293b; margin-top: 0;">{st.session_state.selected_dept}</h1>
-            <p style="color: #3b82f6; font-weight: bold;">📞 {st.session_state.phone}</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("📞 LLAMAR AHORA", type="primary", use_container_width=True):
-        log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Llamada")
-        open_whatsapp_popup(f"https://wa.me/{st.session_state.phone.replace('+', '')}")
-        st.success("Llamada iniciada")
+    if st.session_state.get('completado'):
+        st.success("✅ ¡Proceso Iniciado!")
+        st.markdown("<p style='text-align:center;'>Si WhatsApp no abrió, revise los pop-ups bloqueados.</p>", unsafe_allow_html=True)
+        
+        if st.button("🔄 ATENDER OTRO DEPTO", type="primary", use_container_width=True):
+            for k in list(st.session_state.keys()): del st.session_state[k]
+            st.rerun()
+    else:
+        st.markdown(f"""
+            <div style="background-color: white; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #e2e8f0;">
+                <h2 style="color: #1e293b; margin:0;">Depto {st.session_state.selected_dept}</h2>
+                <p style="color: #3b82f6; font-weight: bold;">{st.session_state.phone}</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.write(" ") # Espaciador
-    
-    if st.button("💬 ENVIAR MENSAJE", type="secondary", use_container_width=True):
-        st.session_state.msg_active = True
+        st.write("")
+        
+        if st.button("📞 LLAMAR POR WHATSAPP", type="primary", use_container_width=True):
+            log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Llamada")
+            url_ws = f"https://wa.me/{st.session_state.phone.replace('+', '')}"
+            open_whatsapp_and_mark_done(url_ws)
 
-    if st.session_state.get('msg_active'):
-        st.divider()
-        m1, m2 = st.columns(2)
-        if m1.button("📦 Pedido"):
-            log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Msg: Pedido")
-            open_whatsapp_popup(f"https://wa.me/{st.session_state.phone}?text=Tiene%20un%20pedido%20en%20porteria")
-        if m2.button("👤 Visita"):
-            log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Msg: Visita")
-            open_whatsapp_popup(f"https://wa.me/{st.session_state.phone}?text=Su%20visita%20ha%20llegado")
+        if st.button("💬 MENSAJES RÁPIDOS", use_container_width=True):
+            st.session_state.ver_mensajes = True
+            st.rerun()
 
-    st.write("---")
-    if st.button("🏠 FINALIZAR Y VOLVER", key="home"):
-        for k in list(st.session_state.keys()): del st.session_state[k]
-        st.rerun()
+        if st.session_state.get('ver_mensajes'):
+            st.divider()
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("📦 Paquete"):
+                    log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Msg: Paquete")
+                    open_whatsapp_and_mark_done(f"https://wa.me/{st.session_state.phone}?text=Paquete%20en%20porteria")
+            with col_b:
+                if st.button("👤 Visita"):
+                    log_event(st.session_state.selected_tower, st.session_state.selected_dept, "Msg: Visita")
+                    open_whatsapp_and_mark_done(f"https://wa.me/{st.session_state.phone}?text=Visita%20en%20porteria")
