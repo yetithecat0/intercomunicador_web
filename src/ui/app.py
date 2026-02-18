@@ -247,22 +247,26 @@ st.progress(st.session_state.step / 4)
 
 # --- PANTALLA 1: TORRE ---
 if st.session_state.step == 1:
-    st.write("### 🛸 SELECCIONE TORRE")
-    cols = st.columns(3)
+    st.markdown("<h3 style='text-align: center; color: #00fbff;'>🛸 SELECCIONE TORRE</h3>", unsafe_allow_html=True)
+    
     torres = sorted(df['torre'].unique()) if not df.empty else ['T1', 'T2', 'T3']
     
-    for i, t in enumerate(torres):
-        with cols[i % 3]:
+    # Diseño de botones centrados y más extendidos (80% del ancho)
+    for t in torres:
+        col_side_alt1, col_center_alt1, col_side_alt2 = st.columns([0.1, 0.8, 0.1])
+        with col_center_alt1:
             if st.button(f"TORRE {t[-1] if len(t)>1 else t}", key=f"btn_{t}"):
                 st.session_state.sel_torre = t
                 st.session_state.step = 2
                 st.rerun()
     
     st.divider()
-    st.markdown('<div class="audit-btn">', unsafe_allow_html=True)
-    if st.button("📊 AUDITORÍA DE EVENTOS (HOY)"):
-        st.session_state.show_audit = True
-    st.markdown('</div>', unsafe_allow_html=True)
+    col_side_alt3, col_center_alt3, col_side_alt4 = st.columns([0.2, 0.6, 0.2])
+    with col_center_alt3:
+        st.markdown('<div class="audit-btn">', unsafe_allow_html=True)
+        if st.button("📊 AUDITORÍA DE EVENTOS (HOY)"):
+            st.session_state.show_audit = True
+        st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.get('show_audit'):
         st.info(f"Historial del Día: {datetime.now().strftime('%Y-%m-%d')}")
