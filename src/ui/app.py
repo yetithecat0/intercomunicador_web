@@ -377,8 +377,15 @@ elif st.session_state.step == 4:
     row = st.session_state.sel_dept_data
     
     if st.session_state.get('completado'):
-        st.success("⚡ PROTOCOLO INICIADO")
-        if st.button("🔄 REINICIAR SISTEMA", type="primary"):
+        st.markdown("""
+        <div class="white-card">
+            <h1 style='font-size: 5rem; margin: 0;'>✅</h1>
+            <h2 style='color: #1e293b; font-size: 1.8rem !important; margin: 20px 0 !important;'>Registro Finalizado Correctamente</h2>
+            <p style='color: #64748b; font-size: 1rem;'>El protocolo ha sido ejecutado y registrado en el sistema.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🏠 VOLVER AL INICIO", use_container_width=True):
             st.session_state.step = 1
             st.session_state.completado = False
             st.rerun()
