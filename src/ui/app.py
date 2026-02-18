@@ -58,13 +58,13 @@ st.markdown("""
         color: #00fbff;
         border: 2px solid #00fbff;
         border-radius: 8px;
-        padding: 15px 5px;
+        padding: 12px 2px;
         font-weight: bold;
         box-shadow: 0 0 10px rgba(0, 251, 255, 0.2);
         transition: all 0.3s ease;
         text-transform: uppercase;
         width: 100%;
-        font-size: 0.9rem !important;
+        font-size: 0.8rem !important;
     }
 
     div.stButton > button:hover {
@@ -125,11 +125,35 @@ st.markdown("""
     }
 
     /* Inputs y Selectors */
-    .stSelectbox, .stRadio, .stDataFrame {
+    .stSelectbox, .stDataFrame {
         background: rgba(0, 251, 255, 0.05) !important;
         padding: 10px;
         border-radius: 10px;
         border: 1px solid rgba(0, 251, 255, 0.3) !important;
+    }
+
+    /* Selector de Radio Mejorado (Segmentado) */
+    .stRadio > label {
+        color: #ff00ff !important; /* Magenta neón para el título */
+        font-size: 1.2rem !important;
+        font-weight: 900 !important;
+        text-shadow: 0 0 5px #ff00ff;
+        margin-bottom: 10px !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] {
+        background: rgba(0, 251, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        border: 2px solid rgba(0, 251, 255, 0.4);
+        display: flex;
+        justify-content: space-around;
+    }
+
+    div[data-testid="stRadio"] label p {
+        color: #ffffff !important; /* Texto en blanco para máximo contraste */
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
     }
 
     /* Tarjeta Blanca de Alta Visibilidad (Pantalla 4) */
@@ -173,6 +197,19 @@ st.markdown("""
         font-style: italic !important;
         margin-top: 0 !important;
         font-family: sans-serif !important;
+    }
+
+    /* FORZAR GRILLA EN MÓVIL (Evita que las columnas se apilen) */
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+    }
+    
+    div[data-testid="stHorizontalBlock"] > div {
+        min-width: 0 !important; /* Permite que las columnas se encojan */
+        flex: 1 1 20% !important; /* Sugiere un tamaño base para 4-5 columnas */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -291,10 +328,10 @@ elif st.session_state.step == 2:
     
     pisos_disponibles = sorted(df[df['torre'] == st.session_state.sel_torre]['piso'].unique())
     
-    # Grilla de 3 columnas - Formato anterior de texto
-    for i in range(0, len(pisos_disponibles), 3):
-        cols = st.columns(3)
-        for j in range(3):
+    # Grilla de 4 columnas (Formato 4x4)
+    for i in range(0, len(pisos_disponibles), 4):
+        cols = st.columns(4)
+        for j in range(4):
             if i + j < len(pisos_disponibles):
                 piso = pisos_disponibles[i + j]
                 with cols[j]:
