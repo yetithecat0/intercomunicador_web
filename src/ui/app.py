@@ -250,23 +250,25 @@ def log_event(torre, departamento, tipo_accion):
     except Exception as e:
         st.error(f"Error de registro: {e}")
 
-def open_whatsapp_js(phone, message=""):
+def trigger_whatsapp(phone, message=""):
     import urllib.parse
     encoded_msg = urllib.parse.quote(message)
     url = f"https://wa.me/{phone.replace('+', '')}?text={encoded_msg}"
     
+    # Guardamos la URL y marcamos como completado para el próximo renderizado
+    st.session_state.whatsapp_url = url
+    st.session_state.completado = True
+    st.rerun()
+
+def execute_js_wa(url):
     js = f"""
     <script>
-        var win = window.open("{url}", "_blank");
-        if(!win || win.closed || typeof win.closed=='undefined') {{ 
-            alert("Bloqueador de ventanas activado. Por favor, permite popups para Esmeralda 2026."); 
-        }}
+        window.open("{url}", "_blank");
         setTimeout(function() {{
             window.parent.document.dispatchEvent(new Event('keydown'));
         }}, 500);
     </script>
     """
-    st.session_state.completado = True
     components.html(js, height=0)
 
 # ==========================================
@@ -377,6 +379,11 @@ elif st.session_state.step == 4:
     row = st.session_state.sel_dept_data
     
     if st.session_state.get('completado'):
+        # Ejecutar el JS de WhatsApp si hay una URL pendiente
+        if 'whatsapp_url' in st.session_state:
+            execute_js_wa(st.session_state.whatsapp_url)
+            del st.session_state.whatsapp_url # Limpiar para evitar aperturas dobles
+            
         st.markdown("""
         <div class="white-card">
             <h1 style='font-size: 5rem; margin: 0;'>✅</h1>
@@ -415,7 +422,7 @@ elif st.session_state.step == 4:
             # Botón LLAMAR (Verde Vibrante - Ancho Completo)
             if st.button("📞 LLAMAR POR WHATSAPP", use_container_width=True):
                 log_event(st.session_state.sel_torre, row.departamento, f"Llamada ({sujeto})")
-                open_whatsapp_js(telefono_destino, f"Hola {nombre_sujeto}, le saludamos de Vigilancia...")
+                trigger_whatsapp(telefono_destino, f"Hola {nombre_sujeto}, le saludamos de Vigilancia...")
                 
             # Botones Secundarios (Horizontales)
             col1, col2 = st.columns(2)
@@ -423,13 +430,13 @@ elif st.session_state.step == 4:
                 if st.button("📦 PAQUETE", use_container_width=True):
                     msg = "Estimado vecino, le saludamos de Vigilancia. Le informamos que tiene un paquete recibido en portería. Puede pasar a recogerlo cuando guste. Saludos."
                     log_event(st.session_state.sel_torre, row.departamento, f"Paquete ({sujeto})")
-                    open_whatsapp_js(telefono_destino, msg)
+                    trigger_whatsapp(telefono_destino, msg)
             
             with col2:
                 if st.button("👤 VISITA", use_container_width=True):
                     msg = "Buen día, le informamos que tiene una visita esperando por usted en la caseta de vigilancia. ¿Nos autoriza el ingreso? Quedamos atentos."
                     log_event(st.session_state.sel_torre, row.departamento, f"Visita ({sujeto})")
-                    open_whatsapp_js(telefono_destino, msg)
+                    trigger_whatsapp(telefono_destino, msg)
         
         st.markdown('</div>', unsafe_allow_html=True)
         
