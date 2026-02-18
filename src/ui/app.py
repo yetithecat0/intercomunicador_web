@@ -385,10 +385,10 @@ elif st.session_state.step == 4:
             del st.session_state.whatsapp_url # Limpiar para evitar aperturas dobles
             
         st.markdown("""
-        <div class="white-card">
-            <h1 style='font-size: 5rem; margin: 0;'>✅</h1>
-            <h2 style='color: #1e293b; font-size: 1.8rem !important; margin: 20px 0 !important;'>Registro Finalizado Correctamente</h2>
-            <p style='color: #64748b; font-size: 1rem;'>El protocolo ha sido ejecutado y registrado en el sistema.</p>
+        <div class="white-card" style="padding: 15px;">
+            <h1 style='font-size: 3.5rem; margin: 0;'>✅</h1>
+            <h2 style='color: #1e293b; font-size: 1.3rem !important; margin: 10px 0 !important;'>Registro Finalizado Correctamente</h2>
+            <p style='color: #28a745; font-size: 0.85rem; font-weight: bold;'>El protocolo ha sido ejecutado y registrado en el sistema.</p>
         </div>
         """, unsafe_allow_html=True)
         
