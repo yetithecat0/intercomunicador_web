@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import csv
 from datetime import datetime
+import pytz
 import streamlit.components.v1 as components
 
 # ==========================================
@@ -217,6 +218,9 @@ st.markdown("""
 # ==========================================
 # 3. LÓGICA DE DATOS Y EVENTOS
 # ==========================================
+def get_now():
+    """Retorna la fecha y hora actual en la zona horaria de Bogotá (UTC-5)"""
+    return datetime.now(pytz.timezone('America/Bogota'))
 
 @st.cache_data
 def load_data():
@@ -234,7 +238,7 @@ def log_event(torre, departamento, tipo_accion):
     try:
         os.makedirs(os.path.dirname(EVENTS_CSV), exist_ok=True)
         file_exists = os.path.exists(EVENTS_CSV)
-        now = datetime.now()
+        now = get_now()
         event_row = {
             'fecha': now.strftime("%Y-%m-%d"),
             'hora': now.strftime("%H:%M:%S"),
@@ -309,10 +313,12 @@ if st.session_state.step == 1:
         st.markdown('</div>', unsafe_allow_html=True)
     
     if st.session_state.get('show_audit'):
-        st.info(f"Historial del Día: {datetime.now().strftime('%Y-%m-%d')}")
+        now = get_now()
+        today = now.strftime('%Y-%m-%d')
+        st.info(f"Historial del Día: {today}")
+        
         if os.path.exists(EVENTS_CSV):
             events_df = pd.read_csv(EVENTS_CSV)
-            today = datetime.now().strftime('%Y-%m-%d')
             today_events = events_df[events_df['fecha'] == today].sort_values(by='hora', ascending=False)
             if not today_events.empty:
                 st.dataframe(today_events[['hora', 'torre', 'departamento', 'tipo_accion']], use_container_width=True, hide_index=True)
