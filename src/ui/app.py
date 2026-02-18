@@ -57,20 +57,14 @@ st.markdown("""
         background-color: transparent;
         color: #00fbff;
         border: 2px solid #00fbff;
-        border-radius: 12px;
-        padding: 18px 10px;
-        font-weight: 800;
-        box-shadow: 0 0 15px rgba(0, 251, 255, 0.2);
+        border-radius: 8px;
+        padding: 15px 5px;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 251, 255, 0.2);
         transition: all 0.3s ease;
         text-transform: uppercase;
         width: 100%;
-        font-size: 1.1rem !important;
-        letter-spacing: 2px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        margin: 0 auto;
+        font-size: 0.9rem !important;
     }
 
     div.stButton > button:hover {
@@ -295,19 +289,16 @@ if st.session_state.step == 1:
 elif st.session_state.step == 2:
     st.write(f"### 🧬 TORRE {st.session_state.sel_torre[-1]} > PISO")
     
-    st.write(f"### 🧬 TORRE {st.session_state.sel_torre[-1]} > PISO")
-    
     pisos_disponibles = sorted(df[df['torre'] == st.session_state.sel_torre]['piso'].unique())
     
-    # Grilla de 3 columnas optimizada para móvil
-    # Usamos columnas iguales para asegurar el orden 1, 2, 3 horizontalmente
+    # Grilla de 3 columnas - Formato anterior de texto
     for i in range(0, len(pisos_disponibles), 3):
         cols = st.columns(3)
         for j in range(3):
             if i + j < len(pisos_disponibles):
                 piso = pisos_disponibles[i + j]
                 with cols[j]:
-                    if st.button(f" {piso} ", key=f"p_{piso}", use_container_width=True):
+                    if st.button(f"PISO {piso}", key=f"p_{piso}", use_container_width=True):
                         st.session_state.sel_piso = int(piso)
                         st.session_state.step = 3
                         st.rerun()
