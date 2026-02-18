@@ -57,13 +57,20 @@ st.markdown("""
         background-color: transparent;
         color: #00fbff;
         border: 2px solid #00fbff;
-        border-radius: 8px;
-        padding: 15px;
-        font-weight: bold;
-        box-shadow: 0 0 10px rgba(0, 251, 255, 0.2);
+        border-radius: 12px;
+        padding: 18px 10px;
+        font-weight: 800;
+        box-shadow: 0 0 15px rgba(0, 251, 255, 0.2);
         transition: all 0.3s ease;
         text-transform: uppercase;
         width: 100%;
+        font-size: 1.1rem !important;
+        letter-spacing: 2px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin: 0 auto;
     }
 
     div.stButton > button:hover {
@@ -247,22 +254,22 @@ st.progress(st.session_state.step / 4)
 
 # --- PANTALLA 1: TORRE ---
 if st.session_state.step == 1:
-    st.markdown("<h3 style='text-align: center; color: #00fbff;'>🛸 SELECCIONE TORRE</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #00fbff; margin-bottom: 25px;'>🛸 SELECCIONE TORRE</h3>", unsafe_allow_html=True)
     
     torres = sorted(df['torre'].unique()) if not df.empty else ['T1', 'T2', 'T3']
     
-    # Diseño de botones centrados y más extendidos (80% del ancho)
+    # Usamos un solo bloque centrado con padding lateral controlado por Streamlit
+    # pero forzamos el ancho extenso mediante el CSS global width: 100%
     for t in torres:
-        col_side_alt1, col_center_alt1, col_side_alt2 = st.columns([0.1, 0.8, 0.1])
-        with col_center_alt1:
-            if st.button(f"TORRE {t[-1] if len(t)>1 else t}", key=f"btn_{t}"):
-                st.session_state.sel_torre = t
-                st.session_state.step = 2
-                st.rerun()
+        if st.button(f"TORRE {t[-1] if len(t)>1 else t}", key=f"btn_{t}", use_container_width=True):
+            st.session_state.sel_torre = t
+            st.session_state.step = 2
+            st.rerun()
+        st.write("") # Espaciado vertical
     
     st.divider()
-    col_side_alt3, col_center_alt3, col_side_alt4 = st.columns([0.2, 0.6, 0.2])
-    with col_center_alt3:
+    col_side_a, col_center_a, col_side_b = st.columns([0.05, 0.9, 0.05])
+    with col_center_a:
         st.markdown('<div class="audit-btn">', unsafe_allow_html=True)
         if st.button("📊 AUDITORÍA DE EVENTOS (HOY)"):
             st.session_state.show_audit = True
@@ -288,17 +295,19 @@ if st.session_state.step == 1:
 elif st.session_state.step == 2:
     st.write(f"### 🧬 TORRE {st.session_state.sel_torre[-1]} > PISO")
     
-    # Filtrar pisos disponibles para la torre
+    st.write(f"### 🧬 TORRE {st.session_state.sel_torre[-1]} > PISO")
+    
     pisos_disponibles = sorted(df[df['torre'] == st.session_state.sel_torre]['piso'].unique())
     
-    # Grilla de 3 columnas
+    # Grilla de 3 columnas optimizada para móvil
+    # Usamos columnas iguales para asegurar el orden 1, 2, 3 horizontalmente
     for i in range(0, len(pisos_disponibles), 3):
         cols = st.columns(3)
         for j in range(3):
             if i + j < len(pisos_disponibles):
                 piso = pisos_disponibles[i + j]
                 with cols[j]:
-                    if st.button(f"PISO {piso}", key=f"p_{piso}"):
+                    if st.button(f" {piso} ", key=f"p_{piso}", use_container_width=True):
                         st.session_state.sel_piso = int(piso)
                         st.session_state.step = 3
                         st.rerun()
